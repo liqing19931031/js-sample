@@ -51,7 +51,8 @@
 	var $ = __webpack_require__(2);
 
 	(0, _rewrite.reWriteForm)($('.form'), _rewrite.myData);
-	$('.submit').on('click', function () {
+	$('.submit').on('click', function (e) {
+		console.log(e);
 		(0, _rewrite.getParam)($('.form'));
 	});
 
@@ -73,41 +74,49 @@
 	  "sex": 1,
 	  "logo": "1.jpg"
 	};
-	// 基于JQ的表单数据回填 和获取
+	// 基于JQ的表单数据回填
 	var reWriteForm = function reWriteForm($form, data, special) {
 	  $.each(data, function (k, v) {
 	    var node = $form.find('[name=' + k + ']');
-	    if (node.length > 1) {
-	      if ($(node[0]).attr('type') === 'checkbox' || $(node[0]).attr('type') === 'CHECKBOX') {
-	        if ($.isArray(data[k])) {
-	          $.each(data[k], function (j, _n) {
-	            node.filter('[value=' + _n + ']').attr('checked', 'checked');
-	          });
+	    if (special && special[k]) {
+	      if (typeof special[k] === 'function') {
+	        special[k].call(node, d);
+	      } else {
+	        special[k].val(d, node);
+	      }
+	    } else {
+	      if (node.length > 1) {
+	        if ($(node[0]).attr('type') === 'checkbox' || $(node[0]).attr('type') === 'CHECKBOX') {
+	          if ($.isArray(data[k])) {
+	            $.each(data[k], function (j, _n) {
+	              node.filter('[value=' + _n + ']').attr('checked', 'checked');
+	            });
+	          }
 	        }
-	      }
-	      if ($(node[0]).attr('type') === 'radio' || $(node[0]).attr('type') === 'RADIO') {
-	        node.filter('[value=' + data[k] + ']').attr('checked', 'checked');
-	      }
-	    } else if (node.length === 1) {
-	      if (node[0].nodeName === 'input' || node[0].nodeName === 'INPUT') {
-	        if (node.attr('type') === 'email' || node.attr('type') === 'text') {
+	        if ($(node[0]).attr('type') === 'radio' || $(node[0]).attr('type') === 'RADIO') {
+	          node.filter('[value=' + data[k] + ']').attr('checked', 'checked');
+	        }
+	      } else if (node.length === 1) {
+	        if (node[0].nodeName === 'input' || node[0].nodeName === 'INPUT') {
+	          if (node.attr('type') === 'email' || node.attr('type') === 'text') {
+	            node.val(data[k]);
+	          }
+	          if (node.attr('type') === 'checkbox' || node.attr('type') === 'CHECKBOX') {
+	            node.attr('checked', 'checked');
+	          }
+	          if (node.attr('type') === 'radio' || node.attr('type') === 'RADIO') {
+	            node.attr('checked', 'checked');
+	          }
+	        }
+	        if (node[0].nodeName === 'select' || node[0].nodeName === 'SELECT') {
 	          node.val(data[k]);
 	        }
-	        if (node.attr('type') === 'checkbox' || node.attr('type') === 'CHECKBOX') {
-	          node.attr('checked', 'checked');
+	        if (node[0].nodeName === 'img' || node[0].nodeName === 'IMG') {
+	          node.attr('src', data[k]);
 	        }
-	        if (node.attr('type') === 'radio' || node.attr('type') === 'RADIO') {
-	          node.attr('checked', 'checked');
+	        if (node[0].nodeName === 'textarea' || node[0].nodeName === 'TEXTAREA') {
+	          node.val(k);
 	        }
-	      }
-	      if (node[0].nodeName === 'select' || node[0].nodeName === 'SELECT') {
-	        node.val(data[k]);
-	      }
-	      if (node[0].nodeName === 'img' || node[0].nodeName === 'IMG') {
-	        node.attr('src', data[k]);
-	      }
-	      if (node[0].nodeName === 'textarea' || node[0].nodeName === 'TEXTAREA') {
-	        node.val(k);
 	      }
 	    }
 	  });
